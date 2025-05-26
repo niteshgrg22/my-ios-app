@@ -14,7 +14,6 @@ import {
   View,
 } from 'react-native';
 import { supabase } from '../lib/supabase';
-import { Expense } from '../types/expenses';
 
 export default function AddExpense() {
   const router = useRouter();
@@ -30,15 +29,14 @@ export default function AddExpense() {
       return;
     }
 
-    const newExpense: Expense = {
-      id: Date.now().toString(),
+    const newExpense = {
       amount: parseFloat(amount),
       description,
       group: recipient,
       payer,
+      created_at: new Date().toISOString(),
     };
-
-    const { error } = await supabase.from('expenses').insert<Expense>([newExpense]);
+    const { error } = await supabase.from('expenses').insert([newExpense]);
 
     if (error) {
       console.error('❌ Supabase error:', error);
@@ -125,6 +123,8 @@ export default function AddExpense() {
     </TouchableWithoutFeedback>
   );
 }
+
+
 
 const styles = StyleSheet.create({
   container: {

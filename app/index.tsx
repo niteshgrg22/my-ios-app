@@ -1,25 +1,31 @@
+import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { supabase } from '../lib/supabase';
 import { Expense } from '../types/expenses';
-
 export default function HomeScreen() {
   const router = useRouter();
   const [expenses, setExpenses] = useState<Expense[]>([]);
 
-  useEffect(() => {
-    async function fetchExpenses() {
-      const { data, error } = await supabase.from('expenses').select('*');
+  useFocusEffect(
+  useCallback(() => {
+    const fetchExpenses = async () => {
+      const { data, error } = await supabase
+        .from('expenses')
+        .select('*')
+        .order('created_at', { ascending: false });
+
       if (error) {
-        console.error('❌ Supabase error:', error);
+        console.error('❌ Supabase fetch error:', error);
       } else {
         setExpenses(data || []);
       }
-    }
+    };
 
     fetchExpenses();
-  }, []);
+  }, [])
+);
 
   const renderItem = ({ item }: { item: Expense }) => {
     const isYouPaid = item.payer === 'you';
